@@ -1,20 +1,22 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { InitialScreen } from "./src/screens/InitialScreen";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { PhoneNumberScreen } from "./src/screens/PhoneNumberScreen";
+import { OtpScreen } from "./src/screens/OtpScreen";
+import { ProfileScreen } from "./src/screens/ProfileScreen";
+import { CreatePinScreen } from "./src/screens/createPinScreen";
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name={"homeScreen"} component={InitialScreen} />
+        <Stack.Screen name={"PhoneNumber"} component={PhoneNumberScreen} />
+        <Stack.Screen name={"OtpScreen"} component={OtpScreen} />
+        <Stack.Screen name={"ProfileScreen"} component={ProfileScreen} />
+        <Stack.Screen name={"createPin"} component={CreatePinScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

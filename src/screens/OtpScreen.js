@@ -7,10 +7,14 @@ import {
   Dimensions,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
+import firebase from "firebase/compat/app";
+import { useDispatch } from "react-redux";
 const { width, height } = Dimensions.get("screen");
 export const OtpScreen = ({ navigation, route }) => {
   const [time, setTime] = React.useState(60);
+  const dispatch = useDispatch();
   const firstRef = React.useRef(null);
   const secondRef = React.useRef(null);
   const thirdRef = React.useRef(null);
@@ -30,24 +34,25 @@ export const OtpScreen = ({ navigation, route }) => {
       setTime(time - 1);
     }, 1000);
 
-  const OtpInput = ({ value, setValue, nextRef, prevRef, autoFocus }) => (
-    <TextInput
-      autoFocus={autoFocus}
-      maxLength={1}
-      value={value}
-      onChangeText={(text) => {
-        setValue(text);
-        if (text.length > 0) nextRef.current.focus();
-      }}
-      onKeyPress={(e) => {
-        if (e.nativeEvent.key === "Backspace") {
-          prevRef.current.focus();
-        }
-      }}
-      style={styleSheet.otpInput}
-      keyboardType={"number-pad"}
-    />
-  );
+  const confirmCode = (text) => {
+    if (route.params.verificationId) {
+      let code = first + second + third + fourth + fifth + text;
+      const credential = firebase.auth.PhoneAuthProvider.credential(
+        route.params.verificationId,
+        code
+      );
+      firebase
+        .auth()
+        .signInWithCredential(credential)
+        .then((user) => {
+          dispatch({ type: "USER_LOGIN", user });
+          navigation.navigate("ProfileScreen");
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    }
+  };
 
   return (
     <SafeAreaView style={{ paddingTop: 0.08 * height, alignItems: "center" }}>
@@ -140,7 +145,7 @@ export const OtpScreen = ({ navigation, route }) => {
           maxLength={1}
           onChangeText={(text) => {
             setSixth(text);
-            navigation.navigate("ProfileScreen");
+            confirmCode(text);
           }}
           onKeyPress={(e) => {
             if (e.nativeEvent.key === "Backspace") {

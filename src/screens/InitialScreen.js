@@ -9,11 +9,13 @@ import {
   Alert,
 } from "react-native";
 import { Dimensions } from "react-native";
+import { useSelector } from "react-redux";
 import { ButtonComp } from "../components/ButtonComp";
 import { Constants } from "../Constants";
+
 export const InitialScreen = ({ navigation }) => {
   const { width, height } = Dimensions.get("screen");
-
+  const { userLogin } = useSelector((state) => state.UserReducer);
   const handlePress = React.useCallback(async () => {
     // Checking if the link is supported for links with custom URL scheme.
     const supported = await Linking.canOpenURL("https://signal.org/legal/");
@@ -28,6 +30,13 @@ export const InitialScreen = ({ navigation }) => {
       );
     }
   });
+
+  React.useEffect(() => {
+    console.log(userLogin, "userLogin");
+    if (userLogin) {
+      navigation.replace("HomeScreen");
+    }
+  }, []);
 
   return (
     <SafeAreaView

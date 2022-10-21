@@ -10,14 +10,20 @@ import {
 } from "react-native";
 import Iconh, { Icons } from "../../assets/Icons";
 import { ButtonComp } from "../components/ButtonComp";
+import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
+import { firebaseConfig } from "../firebase";
+import firebase from "firebase/compat/app";
 
 const { width, height } = Dimensions.get("screen");
 export const PhoneNumberScreen = ({ navigation }) => {
   const [country, setCountry] = React.useState("INDIA");
   const [phone, setPhone] = React.useState("");
+  const [verificationId, setVerificationId] = React.useState(null);
+  const recaptchaVerifier = React.useRef(null);
+
   const [enabled, setEnabled] = React.useState(false);
   React.useEffect(() => {
-    if (phone.length > 15) {
+    if (phone.length > 12) {
       setEnabled(true);
     } else {
       setEnabled(false);
@@ -25,11 +31,25 @@ export const PhoneNumberScreen = ({ navigation }) => {
   }, [phone]);
 
   const register = () => {
-    navigation.navigate("OtpScreen", { phone });
+    const phoneProvider = new firebase.auth.PhoneAuthProvider();
+    phoneProvider
+      .verifyPhoneNumber(phone, recaptchaVerifier.current)
+      .then(setVerificationId);
   };
+
+  React.useEffect(() => {
+    if (verificationId && recaptchaVerifier.current) {
+      navigation.navigate("OtpScreen", { phone, verificationId });
+      //console.log(verificationId, recaptchaVerifier.current);
+    }
+  }, [verificationId]);
 
   return (
     <SafeAreaView style={{ paddingTop: 0.1 * height, alignItems: "center" }}>
+      <FirebaseRecaptchaVerifierModal
+        ref={recaptchaVerifier}
+        firebaseConfig={firebaseConfig}
+      />
       <Text
         style={{
           alignSelf: "auto",
@@ -40,6 +60,7 @@ export const PhoneNumberScreen = ({ navigation }) => {
       >
         Enter your phone number to get started
       </Text>
+
       <Text
         style={{
           alignSelf: "center",
@@ -74,18 +95,15 @@ export const PhoneNumberScreen = ({ navigation }) => {
         <TextInput
           value={phone}
           onChangeText={(text) => setPhone(text)}
-          onPressIn={() => setPhone("+91   ")}
+          onPressIn={() => setPhone("+91")}
           placeholder="PhoneNumber"
+          autoComplete="tel"
           keyboardType={"number-pad"}
           style={[styleSheet.inputContainer]}
         />
       </View>
 
-      <ButtonComp
-        title={"Next"}
-        onPress={() => register()}
-        disabled={!enabled}
-      />
+      <ButtonComp title={"Next"} onPress={register} disabled={!enabled} />
     </SafeAreaView>
   );
 };

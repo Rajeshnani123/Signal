@@ -10,11 +10,18 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { ButtonComp } from "../components/ButtonComp";
+import { useDispatch } from "react-redux";
 
 const { height, width } = Dimensions.get("screen");
 export const ProfileScreen = ({ navigation }) => {
   const [firstName, setFirstName] = React.useState("");
   const [secondName, setSecondName] = React.useState("");
+  const dispatch = useDispatch();
+  const goNext = () => {
+    dispatch({ type: "USER_DATA", firstName, secondName });
+    navigation.navigate("createPin");
+  };
+
   return (
     <SafeAreaView style={{ paddingTop: 0.06 * height }}>
       <Text style={styleSheet.ProfileMainText}> Set up your Profile</Text>
@@ -50,6 +57,7 @@ export const ProfileScreen = ({ navigation }) => {
 
       <View style={styleSheet.inputViewContainer}>
         <TextInput
+          value={firstName}
           style={styleSheet.inputContainer}
           onChangeText={(text) => setFirstName(text)}
           placeholder="First name(required)"
@@ -57,13 +65,15 @@ export const ProfileScreen = ({ navigation }) => {
       </View>
       <View style={styleSheet.inputViewContainer}>
         <TextInput
+          value={secondName}
           style={styleSheet.inputContainer}
+          onChangeText={(text) => setSecondName(text)}
           placeholder="Second name(Optional)"
         />
       </View>
       <ButtonComp
         title={"Next"}
-        onPress={() => navigation.navigate("createPin")}
+        onPress={goNext}
         disabled={firstName.length <= 0}
       />
     </SafeAreaView>
